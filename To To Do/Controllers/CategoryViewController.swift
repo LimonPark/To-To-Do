@@ -30,9 +30,7 @@ class CategoryViewController: UITableViewController {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
         
-        let category = categoryArray[indexPath.row]
-        cell.textLabel?.text = category.name
-        
+        cell.textLabel?.text = categoryArray[indexPath.row].name
         
         return cell
     }
@@ -66,11 +64,10 @@ class CategoryViewController: UITableViewController {
         
         let alert = UIAlertController(title: "Add a new To To Do category", message: "", preferredStyle: .alert)
         
-        let action = UIAlertAction(title: "Add Category", style: .default) { action in
+        let action = UIAlertAction(title: "Add", style: .default) { action in
             
             let newCategory = Category(context: self.context)
            
-        
             newCategory.name = textField.text!
             self.categoryArray.append(newCategory)
             self.saveCategories()
@@ -93,6 +90,13 @@ class CategoryViewController: UITableViewController {
     //MARK: - TableView Delegate Methods
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "goToItems", sender: self)
+    }
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let destinationVC = segue.destination as! TodoListViewController
         
+        if let indexPath = tableView.indexPathForSelectedRow {
+            destinationVC.selectedCategory = categoryArray[indexPath.row]
+        }
     }
 }
