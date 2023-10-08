@@ -8,7 +8,8 @@
 import UIKit
 import CoreData
 
-class CategoryViewController: UITableViewController {
+
+class CategoryViewController: SwipeViewController  {
     
     var categoryArray = [Category]()
     
@@ -19,6 +20,9 @@ class CategoryViewController: UITableViewController {
         
         loadCategories()
         
+        tableView.rowHeight = 80.0
+        
+        
     }
 
     //MARK: - TableView Datasource Methods
@@ -26,12 +30,10 @@ class CategoryViewController: UITableViewController {
         return categoryArray.count
     }
     
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
-        
-        cell.textLabel?.text = categoryArray[indexPath.row].name
-        
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
+        cell.textLabel?.text = categoryArray[indexPath.row].name ?? "No Categories Added Yet"
         return cell
     }
     
@@ -54,6 +56,19 @@ class CategoryViewController: UITableViewController {
         } catch {
             print("Error fetching data from context \(error)")
         }
+    }
+    
+    //MARK: - Delete Data From Swipe
+    
+    override func updateModel(at indexPath: IndexPath) {
+        print("Delete")
+            
+        self.context.delete(self.categoryArray[indexPath.row])
+        self.categoryArray.remove(at: indexPath.row)
+            
+        
+        
+        
     }
     
     //MARK: - Add New Categories
@@ -100,3 +115,4 @@ class CategoryViewController: UITableViewController {
         }
     }
 }
+
