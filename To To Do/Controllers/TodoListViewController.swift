@@ -7,10 +7,11 @@
 
 import UIKit
 import CoreData
+import ChameleonFramework
 
 class TodoListViewController: SwipeViewController {
     
-    var itemArray = [Item]()
+    var itemArray = [Item?]()
     
     var selectedCategory : Category? {
         didSet{
@@ -26,7 +27,8 @@ class TodoListViewController: SwipeViewController {
         navigationItem.title = selectedCategory?.name
         
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
-        tableView.rowHeight = 80.0
+        
+        tableView.separatorStyle = .none
         
     }
     
@@ -38,14 +40,20 @@ class TodoListViewController: SwipeViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
-        
-        let item = itemArray[indexPath.row]
-        cell.textLabel?.text = item.title
+
+        if let item = itemArray[indexPath.row] {
+            cell.textLabel?.text = item.title
+            if let colour = UIColor(hexString: selectedCategory!.colour!)?.darken(byPercentage: CGFloat(indexPath.row) / CGFloat(itemArray.count)){
+                cell.backgroundColor = colour
+                cell.textLabel?.textColor = ContrastColorOf(colour, returnFlat: true)
+            }
+            
+            
+            cell.accessoryType = item.done ? .checkmark : .none
+        }
         
         //Ternary operator ==>
         // value = condition ? valueIfTrue : valueIfFalse
-        
-        cell.accessoryType = item.done ? .checkmark : .none
         
         return cell
     }
@@ -57,8 +65,10 @@ class TodoListViewController: SwipeViewController {
         
         //        context.delete(itemArray[indexPath.row])
         //        itemArray.remove(at: indexPath.row)
-        
-        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        if let item = itemArray[indexPath.row] {
+            item.done = !item.done
+        }
+            
         
         saveItems()
         
@@ -100,8 +110,12 @@ class TodoListViewController: SwipeViewController {
     
     //MARK: - Delete Data From Swipe
     override func updateModel(at indexPath: IndexPath) {
-        self.context.delete(self.itemArray[indexPath.row])
-        self.itemArray.remove(at: indexPath.row)
+        if let item = itemArray[indexPath.row] {
+            self.context.delete(item)
+            self.itemArray.remove(at: indexPath.row)
+        }
+        
+        
     }
     
     //MARK: - Model Manupulation Methods

@@ -7,7 +7,7 @@
 
 import UIKit
 import CoreData
-
+import ChameleonFramework
 
 class CategoryViewController: SwipeViewController  {
     
@@ -15,14 +15,13 @@ class CategoryViewController: SwipeViewController  {
     
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         loadCategories()
         
-        tableView.rowHeight = 80.0
-        
-        
+        tableView.separatorStyle = .none
     }
 
     //MARK: - TableView Datasource Methods
@@ -32,12 +31,17 @@ class CategoryViewController: SwipeViewController  {
     
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
+        
         cell.textLabel?.text = categoryArray[indexPath.row].name ?? "No Categories Added Yet"
+        cell.backgroundColor = UIColor(hexString: categoryArray[indexPath.row].colour ?? "28645A")
         return cell
     }
     
     //MARK: - Data Manipulation Methods
+    
     
     func saveCategories() {
         
@@ -66,9 +70,6 @@ class CategoryViewController: SwipeViewController  {
         self.context.delete(self.categoryArray[indexPath.row])
         self.categoryArray.remove(at: indexPath.row)
             
-        
-        
-        
     }
     
     //MARK: - Add New Categories
@@ -84,6 +85,9 @@ class CategoryViewController: SwipeViewController  {
             let newCategory = Category(context: self.context)
            
             newCategory.name = textField.text!
+            newCategory.colour = UIColor.randomFlat().hexValue()
+            
+            
             self.categoryArray.append(newCategory)
             self.saveCategories()
         }
@@ -97,10 +101,6 @@ class CategoryViewController: SwipeViewController  {
         
         present(alert, animated: true)
     }
-    
-    
-    
-    
     
     //MARK: - TableView Delegate Methods
     
